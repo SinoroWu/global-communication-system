@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Production build outputs
+frontend/dist/
+
+# Compiled Binaries & Local Tools
+backend/bin/
+tools/
+*.exe
+
+# Local Databases & Runtime Data
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Environment & IDE
+.env
+.env.local
+.vscode/
+.idea/
+*.log

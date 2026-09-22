@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: global-communication-system
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DB_PATH
+        value: /app/data/global_comm.db
+      - key: STATIC_DIR
+        value: /app/frontend/dist
+    healthCheckPath: /api/stats
+    autoDeploy: true
