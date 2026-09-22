@@ -67,6 +67,25 @@
 - 前端 Vite 伺服器：`http://localhost:5173`
 - 後端 Go 伺服器：`http://localhost:8080`
 
+### 方式三：部署至 Render 雲端平台 (附自定義網址教學)
+若希望在個人電腦關機時系統仍 24 小時在雲端常駐運行，推薦使用 **[Render](https://render.com/)** 免費/低成本託管：
+1. **推送程式碼至 GitHub**：
+   - 雙擊執行專案目錄下的 **`push-to-github.bat`**，貼上您的 GitHub 倉庫網址即可完成推送。
+2. **在 Render 建立 Web Service**：
+   - 前往 [Render Dashboard](https://dashboard.render.com/) 點擊 **New +** -> **Web Service**。
+   - 選擇剛才推送的 GitHub 倉庫。
+   - **Runtime** 選擇 **Docker**（系統會自動讀取根目錄的 `Dockerfile` 與 `render.yaml`）。
+   - **Region** 建議選擇 **Singapore (新加坡)**（離台灣最近，延遲最低）。
+   - **Plan** 選擇 **Free**。
+   - 點擊 **Deploy Web Service** 即可完成部署！
+3. **設定自定義網址 (Custom Domain)**：
+   - 部署完成後，進入該服務的 **Settings** -> 找到 **Custom Domains** -> 點擊 **Add Custom Domain**。
+   - 輸入您的網域名稱（例如子網域 `chat.yourdomain.com` 或主網域 `yourdomain.com`）。
+   - 在您的網域名稱商（如 Cloudflare, GoDaddy, Namecheap 等）新增 DNS 紀錄：
+     - 若為子網域 (`chat.yourdomain.com`)：新增 **CNAME** 紀錄，名稱填 `chat`，內容指向 Render 給您的預設網址 (例如 `global-communication-system.onrender.com`)。
+     - 若為主網域 (`yourdomain.com`)：新增 **A** 紀錄，名稱填 `@`，內容指向 Render 的 IP (`216.24.57.1`)。
+   - Render 將在 1-5 分鐘內自動頒發並配置免費的 **Let's Encrypt SSL/TLS 憑證 (HTTPS)**！
+
 ---
 
 ## 🔌 五大社群平台 Webhook 與 API 介接指南
