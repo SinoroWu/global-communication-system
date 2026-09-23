@@ -27,9 +27,11 @@ RUN apk --no-cache add ca-certificates tzdata
 COPY --from=backend-builder /app/server /app/server
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
 
-ENV PORT=8080
+ENV PORT=10000
 ENV DB_PATH=/app/data/global_comm.db
+ENV STATIC_DIR=/app/frontend/dist
 VOLUME ["/app/data"]
+EXPOSE 10000
 EXPOSE 8080
 
 CMD ["/app/server"]

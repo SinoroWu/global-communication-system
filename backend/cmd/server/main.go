@@ -81,29 +81,42 @@ func main() {
 	// Enable CORS
 	handler := server.CORS(mux)
 
-	srv := &http.Server{
-		Addr:         ":" + port,
-		Handler:      handler,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+	// 4. Start Server on primary port and fallback ports (Render 10000 / Docker 8080)
+	listenPorts := []string{port}
+	if port != "10000" {
+		listenPorts = append(listenPorts, "10000")
+	}
+	if port != "8080" {
+		listenPorts = append(listenPorts, "8080")
 	}
 
-	// 4. Start Server
-	go func() {
-		log.Printf("[Server] Listening on http://localhost:%s", port)
-		log.Printf("[Server] Webhooks ready:")
-		log.Printf("  - LINE:      POST http://localhost:%s/api/webhooks/line", port)
-		log.Printf("  - Instagram: POST http://localhost:%s/api/webhooks/instagram", port)
-		log.Printf("  - Facebook:  POST http://localhost:%s/api/webhooks/facebook", port)
-		log.Printf("  - 抖音:      POST http://localhost:%s/api/webhooks/douyin", port)
-		log.Printf("  - Telegram:  POST http://localhost:%s/api/webhooks/telegram", port)
-		log.Printf("  - WebSocket: ws://localhost:%s/api/ws", port)
+	log.Printf("[Server] Primary port is :%s (fallback ports: %v)", port, listenPorts)
+	log.Printf("[Server] Webhooks ready on all active ports:")
+	log.Printf("  - LINE:      POST /api/webhooks/line")
+	log.Printf("  - Instagram: POST /api/webhooks/instagram")
+	log.Printf("  - Facebook:  POST /api/webhooks/facebook")
+	log.Printf("  - 抖音:      POST /api/webhooks/douyin")
+	log.Printf("  - Telegram:  POST /api/webhooks/telegram")
+	log.Printf("  - WebSocket: ws://<host>/api/ws")
 
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("[Fatal] Server failed: %v", err)
+	var servers []*http.Server
+	for _, p := range listenPorts {
+		srv := &http.Server{
+			Addr:         ":" + p,
+			Handler:      handler,
+			ReadTimeout:  15 * time.Second,
+			WriteTimeout: 15 * time.Second,
+			IdleTimeout:  60 * time.Second,
 		}
-	}()
+		servers = append(servers, srv)
+		p := p
+		go func(s *http.Server) {
+			log.Printf("[Server] Listening on http://0.0.0.0:%s", p)
+			if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Printf("[Server] Port :%s stopped or in use: %v", p, err)
+			}
+		}(srv)
+	}
 
 	// 5. Graceful Shutdown
 	quit := make(chan os.Signal, 1)
@@ -114,8 +127,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("[Fatal] Server forced shutdown: %v", err)
+	for _, s := range servers {
+		_ = s.Shutdown(ctx)
 	}
 	log.Println("[Server] Bye!")
 	fmt.Println()
