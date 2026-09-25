@@ -9,9 +9,10 @@ COPY frontend/ ./
 RUN npm run build
 
 # ==========================================
-# Stage 2: Build Backend (Go 1.24+ Native)
+# Stage 2: Build Backend (Go Native)
 # ==========================================
-FROM golang:1.24-alpine AS backend-builder
+FROM golang:alpine AS backend-builder
+RUN apk add --no-cache git
 WORKDIR /app/backend
 COPY backend/go.mod backend/go.sum* ./
 RUN go mod download

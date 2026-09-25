@@ -10,7 +10,7 @@ echo 步驟說明：
 echo 1. 請先前往 https://github.com/new 建立一個新的 GitHub 倉庫 (Repository)。
 echo 2. 複製倉庫的 Git 網址 (例如: https://github.com/your-username/global-comm.git)。
 echo.
-set /p REPO_URL="請在此貼上您的 GitHub 倉庫網址: "
+set /p REPO_URL="https://github.com/SinoroWu/global-communication-system.git "
 
 if "%REPO_URL%"=="" (
     echo [!] 未輸入網址，程序已取消。
